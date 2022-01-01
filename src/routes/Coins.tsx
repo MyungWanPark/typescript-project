@@ -21,11 +21,11 @@ const Coin = styled.li`
   background-color: white;
   color: ${(props) => props.theme.bgColor};
   margin-bottom: 10px;
-
   border-radius: 15px;
   a {
     transition: color 0.2s ease-in;
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 20px;
   }
   &:hover {
@@ -45,6 +45,12 @@ const Loading = styled.span`
   display: block;
 `;
 
+const Img = styled.img`
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+`;
+
 interface CoinInterface {
   id: string;
   name: string;
@@ -60,14 +66,17 @@ function Coins() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // ()(); 은 바로 실행하는 방법.
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
       const json = await response.json();
+
+      // 100개만 받아오기 위해서
       setCoins(json.slice(0, 100));
       setLoading(false);
     })();
   }, []);
-  console.log(coins);
+
   return (
     <Container>
       <Header>
@@ -79,7 +88,13 @@ function Coins() {
         <CoinsList>
           {coins.map((coin) => (
             <Coin key={coin.id}>
-              <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
+              {/* link to 에서 값도 보낼 수 있다. 새롭게 api로부터 값을 받아오는 것은 시간이 걸리므로. */}
+              <Link to={`/${coin.id}`} state={{ name: coin.name }}>
+                <Img
+                  src={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
+                />
+                {coin.name} &rarr;
+              </Link>
             </Coin>
           ))}
         </CoinsList>
