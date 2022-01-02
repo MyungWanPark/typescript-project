@@ -66,7 +66,7 @@ function Coins() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ()(); 은 바로 실행하는 방법.
+    // ()(); 은 즉시 실행하는 방법.
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
       const json = await response.json();
