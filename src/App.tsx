@@ -1,5 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import Router from "./Router";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const GlobalStyle = createGlobalStyle`
 
@@ -70,6 +71,8 @@ function App() {
     <>
       <GlobalStyle />
       <Router />
+      {/* cache 되어있는 query들을 볼 수 있다. */}
+      <ReactQueryDevtools initialIsOpen={true} />
     </>
   );
 }

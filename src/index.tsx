@@ -9,6 +9,7 @@ const queryClient = new QueryClient();
 
 ReactDOM.render(
   <React.StrictMode>
+    {/* react query를 사용하기 위해 QueryClientProvider를 설정해야함. */}
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <App />

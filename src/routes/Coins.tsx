@@ -66,9 +66,11 @@ interface ICoin {
 function Coins() {
   // const {} 이것은 한번에 객체를 초기화 하는 방법 {isLoading: false, data: []}
   // const [a,b] = [1,2] 이것은 a = 1, b = 2 한번에 초기화 하는 방법
+  // ICoin[]은 data 변수의 타입을 말한다.
 
   // useQuery는 useEffect를 사용하여 isLoading, fetch coinData 등등을 한 줄로 할 수 있는 react hook.
   //  "allCoins" 는 queryKey 이고 fetchCoins 함수를 비동기적으로 실행하여 받아옴.
+  console.log(false || false);
 
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 

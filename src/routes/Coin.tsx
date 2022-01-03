@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import {
   useLocation,
   useParams,
@@ -7,6 +8,8 @@ import {
   useMatch,
 } from "react-router-dom";
 import styled from "styled-components";
+import { fetchCoinInfo } from "../api";
+import Chart from "./Chart";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -76,6 +79,10 @@ const Tab = styled.span<{ isActive: boolean }>`
     display: block;
   }
 `;
+
+interface RouteParams {
+  coinId: string;
+}
 
 interface RouteState {
   name: string;
@@ -191,16 +198,29 @@ declare module PriceData {
 
 function Coin() {
   // url 의 coinID를 가져오는 방법
+  // 자동으로 v6부터는 자동으로 string or undefined로 타입이 정의된다.
   const { coinId } = useParams();
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
 
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState<InfoData.RootObject>();
-  const [priceInfo, setPriceInfo] = useState<PriceData.RootObject>();
-
   // Link to의 state를 받아오는 방법
   const state = useLocation().state as RouteState;
+
+  // useQuery의 좋은 점은 한번 api를 fetching 해오면 cache로 정보가 저장되어 다시 페이지로 돌아와도
+  // api를 호출하지 않고 cache된 데이터를 불러와 속도, 성능면에서 좋다.
+
+  const { isLoading: infoLoading, data: infoData } =
+    useQuery<InfoData.RootObject>(["info", coinId], () =>
+      fetchCoinInfo(coinId)
+    );
+  const { isLoading: priceLoading, data: priceData } =
+    useQuery<PriceData.RootObject>(["price", coinId], () =>
+      fetchCoinInfo(coinId)
+    );
+
+  /* const [loading, setLoading] = useState(true);
+  const [info, setInfo] = useState<InfoData.RootObject>();
+  const [priceInfo, setPriceInfo] = useState<PriceData.RootObject>();
 
   useEffect(() => {
     (async () => {
@@ -220,7 +240,10 @@ function Coin() {
     // useEffect Hook 의 최적화를 위해 의존성을 가지는 값을 하나 넣어야 함. 다행히 coinID는 url이라 변하지 않아서
     // 의도한 대로 1번만 실행 시킬 수 있다.
   }, [coinId]);
+ */
 
+  // infoLoading 중이거나 priceLoading 중이면 loading 중이라고 표시함.
+  const loading = infoLoading || priceLoading;
   return (
     <Container>
       <Header>
@@ -228,7 +251,7 @@ function Coin() {
         (index페이지를 통해 state값을 전달받지 않고 한번에 url을 입력하여 들어간다면) 
         Loading을 보여준다. */}
         <Title>
-          {state?.name ? state.name : loading ? "Loading..." : info?.name}
+          {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
         </Title>
       </Header>
       {loading ? (
@@ -238,32 +261,34 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>{infoData?.open_source ? "Yes" : "No"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Supply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{priceData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{priceData?.max_supply}</span>
             </OverviewItem>
           </Overview>
           <Tabs>
             {/* chartMatch에서 chart(url)이 맞지 않으면 null이 나온다. */}
             <Tab isActive={chartMatch !== null}>
-              <Link to={`/${coinId}/chart`}>Chart</Link>
+              <Link to={`/${coinId}/chart`}>
+                <Chart coinId={coinId} />
+              </Link>
             </Tab>
             <Tab isActive={priceMatch !== null}>
               <Link to={`/${coinId}/price`}>Price</Link>
