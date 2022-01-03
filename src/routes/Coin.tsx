@@ -261,6 +261,7 @@ function Coin() {
             </OverviewItem>
           </Overview>
           <Tabs>
+            {/* chartMatch에서 chart(url)이 맞지 않으면 null이 나온다. */}
             <Tab isActive={chartMatch !== null}>
               <Link to={`/${coinId}/chart`}>Chart</Link>
             </Tab>
